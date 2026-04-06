@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fitness Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Fitness Tracker</h1>
+
+    <div class="card">
+        <h2>Core Queries</h2>
+        <button onclick="loadWorkouts()">View Workouts</button>
+        <button onclick="loadSummary()">View Calories Summary</button>
+        <button onclick="loadAboveAverage()">Above-Average Users</button>
+        <button onclick="loadIntensity()">Workout Intensity (CASE)</button>
+        <button onclick="loadViewSummary()">View-Based Summary</button>
+        <button onclick="loadFilteredWorkouts()">Filtered Workouts</button>
+        <ul id="workoutsList"></ul>
+    </div>
+
+    <div class="card">
+        <h2>Users</h2>
+        <button onclick="loadUsers()">View Users</button>
+        <ul id="usersList"></ul>
+    </div>
+
+    <div class="card">
+        <h2>Add User</h2>
+        <input type="text" id="name" placeholder="Name">
+        <input type="email" id="email" placeholder="Email">
+        <input type="number" id="age" placeholder="Age">
+        <input type="text" id="goal" placeholder="Fitness Goal">
+        <button onclick="addUser()">Add User</button>
+
+        <h3>Update Workout</h3>
+        <input type="number" id="updateWorkoutId" placeholder="Workout ID">
+        <input type="number" id="updateDuration" placeholder="Duration Minutes">
+        <input type="number" id="updateCalories" placeholder="Calories Burned">
+        <button onclick="updateWorkout()">Update Workout</button>
+
+        <h3>Delete User</h3>
+        <input type="number" id="deleteUserId" placeholder="User ID">
+        <button onclick="deleteUser()">Delete User</button>
+
+        <p id="message"></p>
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+Query 1:
+SELECT u.Name, w.WorkoutDate, w.WorkoutType
+FROM Users u
+JOIN Workout w ON u.UserID = w.UserID
+ORDER BY w.WorkoutDate;
+
+First 5 rows:
+(Alejandro Perez, 2026-03-01, Strength)
+(Miguel Bayon, 2026-03-02, Cardio)
+(William Delaosa, 2026-03-03, NULL)
+
+Total row count: 3
+
+Query 2:
+SELECT UserID, SUM(CaloriesBurned) AS TotalCalories
+FROM Workout
+GROUP BY UserID
+ORDER BY UserID;
+
+First 5 rows:
+(1, 400)
+(2, 300)
+(3, 0)
+
+Total row count: 3
+
+Query 3:
+SELECT Name
+FROM Users
+WHERE UserID IN (
+    SELECT UserID
+    FROM Workout
+    GROUP BY UserID
+    HAVING SUM(CaloriesBurned) > (
+        SELECT AVG(CaloriesBurned) FROM Workout
+    )
+);
+
+First 5 rows:
+(Alejandro Perez)
+(John Doe)
+
+Total row count: 2
+
+Query 4:
+SELECT WorkoutID,
+CASE
+    WHEN CaloriesBurned > 350 THEN 'High'
+    WHEN CaloriesBurned BETWEEN 200 AND 350 THEN 'Medium'
+    ELSE 'Low'
+END AS Intensity
+FROM Workout
+ORDER BY WorkoutID;
+
+First 5 rows:
+(1, High)
+(2, Medium)
+(3, Low)
+
+Total row count: 3
+
+Query 5:
+SELECT * FROM UserWorkoutSummary ORDER BY UserID;
+
+First 5 rows:
+(1, 1, 400)
+(2, 1, 300)
+(3, 1, 0)
+
+Total row count: 3
+
+Query 6:
+SELECT *
+FROM Workout
+WHERE CaloriesBurned > 200 AND DurationMinutes > 30;
+
+First 5 rows:
+(1, 2026-03-01, 60, Strength, 400, 1)
+(2, 2026-03-02, 45, Cardio, 300, 2)
+
+Total row count: 2
+
+Query 7:
+SELECT UserID, MAX(CaloriesBurned) AS MaxCalories
+FROM Workout
+GROUP BY UserID
+ORDER BY UserID;
+
+First 5 rows:
+(1, 400)
+(2, 300)
+(3, 0)
+
+Total row count: 3
+
+Query 8:
+SELECT AVG(CaloriesBurned) AS AvgCalories
+FROM Workout;
+
+First 5 rows:
+(233.333333333333)
+
+Total row count: 1
+
+Query 9:
+INSERT INTO FoodLog (FoodName, Calories, MealType, LogDate, UserID)
+VALUES ('Apple', 95, 'Snack', '2026-03-03', 1);
+
+First 5 rows: 0 rows
+Total row count: 0
+Rows affected: 1
+
+Query 10:
+UPDATE Workout
+SET DurationMinutes = 50
+WHERE WorkoutID = 2;
+
+First 5 rows: 0 rows
+Total row count: 0
+Rows affected: 1
+
+Query 11:
+DELETE FROM FoodLog
+WHERE FoodName = 'Apple' AND UserID = 1;
+
+First 5 rows: 0 rows
+Total row count: 0
+Rows affected: 1
