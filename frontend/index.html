@@ -1,57 +1,144 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fitness Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<div class="container">
-    <h1>Fitness Tracker</h1>
-
-    <div class="card">
-        <h2>Core Queries</h2>
-        <button onclick="loadWorkouts()">View Workouts</button>
-        <button onclick="loadSummary()">View Calories Summary</button>
-        <button onclick="loadAboveAverage()">Above-Average Users</button>
-        <button onclick="loadIntensity()">Workout Intensity (CASE)</button>
-        <button onclick="loadViewSummary()">View-Based Summary</button>
-        <button onclick="loadFilteredWorkouts()">Filtered Workouts</button>
-        <button onclick="loadWorkoutExercises()">Workout Exercises</button>
-        <button onclick="loadMaxCalories()">Max Calories Per User</button>
-        <button onclick="loadAvgCalories()">Average Calories</button>
-        <ul id="workoutsList"></ul>
+<header>
+    <div class="header-inner">
+        <span class="logo">Fitness Tracker</span>
+        <nav class="tabs">
+            <button class="tab active" data-tab="workouts">Workouts</button>
+            <button class="tab" data-tab="users">Users</button>
+            <button class="tab" data-tab="analytics">Analytics</button>
+            <button class="tab" data-tab="manage">Manage</button>
+        </nav>
     </div>
+</header>
 
-    <div class="card">
-        <h2>Users</h2>
-        <button onclick="loadUsers()">View Users</button>
-        <ul id="usersList"></ul>
-    </div>
+<main>
 
-    <div class="card">
-        <h2>Add User</h2>
-        <input type="text" id="name" placeholder="Name">
-        <input type="email" id="email" placeholder="Email">
-        <input type="number" id="age" placeholder="Age">
-        <input type="text" id="goal" placeholder="Fitness Goal">
-        <button onclick="addUser()">Add User</button>
+    <!-- WORKOUTS -->
+    <section id="tab-workouts" class="tab-content active">
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2>Workouts</h2>
+                    <p class="card-sub">View and filter workout records</p>
+                </div>
+                <div class="btn-group">
+                    <button onclick="loadWorkouts()">All Workouts</button>
+                    <button onclick="loadFilteredWorkouts()">Filtered (&gt;200 cal, &gt;30 min)</button>
+                    <button onclick="loadWorkoutExercises()">Exercises per Workout</button>
+                </div>
+            </div>
+            <div id="workoutsTable"><p class="empty">Select a query above to load data.</p></div>
+        </div>
+    </section>
 
-        <h3>Update Workout</h3>
-        <input type="number" id="updateWorkoutId" placeholder="Workout ID">
-        <input type="number" id="updateDuration" placeholder="Duration Minutes">
-        <input type="number" id="updateCalories" placeholder="Calories Burned">
-        <button onclick="updateWorkout()">Update Workout</button>
+    <!-- USERS -->
+    <section id="tab-users" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2>All Users</h2>
+                    <p class="card-sub">Registered users in the system</p>
+                </div>
+                <button onclick="loadUsers()">Load Users</button>
+            </div>
+            <div id="usersTable"><p class="empty">Click Load Users to view records.</p></div>
+        </div>
 
-        <h3>Delete User</h3>
-        <input type="number" id="deleteUserId" placeholder="User ID">
-        <button onclick="deleteUser()">Delete User</button>
+        <div class="card">
+            <h2>Add User</h2>
+            <p class="card-sub">Create a new user account</p>
+            <div class="form-grid">
+                <div class="field">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" placeholder="Full name">
+                </div>
+                <div class="field">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="email@example.com">
+                </div>
+                <div class="field">
+                    <label for="age">Age</label>
+                    <input type="number" id="age" placeholder="Age" min="1">
+                </div>
+                <div class="field">
+                    <label for="goal">Fitness Goal</label>
+                    <input type="text" id="goal" placeholder="e.g. Build Muscle">
+                </div>
+            </div>
+            <button class="primary" onclick="addUser()">Add User</button>
+        </div>
 
-        <p id="message"></p>
-    </div>
+        <div class="card">
+            <h2>Delete User</h2>
+            <p class="card-sub">Deletion will fail if the user has related records</p>
+            <div class="form-row">
+                <div class="field">
+                    <label for="deleteUserId">User ID</label>
+                    <input type="number" id="deleteUserId" placeholder="Enter user ID" min="1">
+                </div>
+            </div>
+            <button class="btn-danger" onclick="deleteUser()">Delete User</button>
+        </div>
+    </section>
 
-</div>
+    <!-- ANALYTICS -->
+    <section id="tab-analytics" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2>Analytics</h2>
+                    <p class="card-sub">Aggregate queries and summaries</p>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button onclick="loadSummary()">Calories Summary</button>
+                <button onclick="loadAboveAverage()">Above Average Users</button>
+                <button onclick="loadIntensity()">Workout Intensity</button>
+                <button onclick="loadViewSummary()">View Summary</button>
+                <button onclick="loadMaxCalories()">Max Calories</button>
+                <button onclick="loadAvgCalories()">Average Calories</button>
+            </div>
+            <div id="analyticsTable"><p class="empty">Select a query above to load data.</p></div>
+        </div>
+    </section>
+
+    <!-- MANAGE -->
+    <section id="tab-manage" class="tab-content">
+        <div class="card">
+            <h2>Update Workout</h2>
+            <p class="card-sub">Updates are wrapped in an explicit database transaction</p>
+            <div class="form-grid">
+                <div class="field">
+                    <label for="updateWorkoutId">Workout ID</label>
+                    <input type="number" id="updateWorkoutId" placeholder="Workout ID" min="1">
+                </div>
+                <div class="field">
+                    <label for="updateDuration">Duration (minutes)</label>
+                    <input type="number" id="updateDuration" placeholder="e.g. 45" min="0">
+                </div>
+                <div class="field">
+                    <label for="updateCalories">Calories Burned</label>
+                    <input type="number" id="updateCalories" placeholder="e.g. 300" min="0">
+                </div>
+            </div>
+            <button class="primary" onclick="updateWorkout()">Update Workout</button>
+        </div>
+    </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
 
 <script src="script.js"></script>
 </body>
