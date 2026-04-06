@@ -358,5 +358,18 @@ def view_summary():
     return jsonify(rows), 200
 
 
+# exercises performed per workout (joins Workout, WorkoutExercise, Exercise)
+@app.route("/analytics/workout-exercises")
+def workout_exercises():
+    rows = execute_select("""
+        SELECT w.WorkoutID, w.WorkoutType, e.ExerciseName, we.Sets, we.Reps, we.Weight
+        FROM Workout w
+        JOIN WorkoutExercise we ON w.WorkoutID = we.WorkoutID
+        JOIN Exercise e ON we.ExerciseID = e.ExerciseID
+        ORDER BY w.WorkoutID;
+    """)
+    return jsonify(rows), 200
+
+
 if __name__ == "__main__":
     app.run(debug=True)

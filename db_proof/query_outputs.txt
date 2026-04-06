@@ -38,7 +38,7 @@ WHERE UserID IN (
 
 First 5 rows:
 (Alejandro Perez)
-(John Doe)
+(Miguel Bayon)
 
 Total row count: 2
 
@@ -126,3 +126,17 @@ WHERE FoodName = 'Apple' AND UserID = 1;
 First 5 rows: 0 rows
 Total row count: 0
 Rows affected: 1
+
+Query 12:
+SELECT w.WorkoutID, w.WorkoutType, e.ExerciseName, we.Sets, we.Reps, we.Weight
+FROM Workout w
+JOIN WorkoutExercise we ON w.WorkoutID = we.WorkoutID
+JOIN Exercise e ON we.ExerciseID = e.ExerciseID
+ORDER BY w.WorkoutID;
+
+First 5 rows:
+(1, Strength, Bench Press, 4, 10, 135)
+(1, Strength, Squat, 3, 8, 185)
+(3, NULL, Squat, 1, 5, 0)
+
+Total row count: 3

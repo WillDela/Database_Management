@@ -62,3 +62,10 @@ WHERE WorkoutID = 2;
 -- Query 11: Delete the inserted food log row
 DELETE FROM FoodLog
 WHERE FoodName = 'Apple' AND UserID = 1;
+
+-- Query 12: Exercises performed per workout (joins Workout, WorkoutExercise, Exercise)
+SELECT w.WorkoutID, w.WorkoutType, e.ExerciseName, we.Sets, we.Reps, we.Weight
+FROM Workout w
+JOIN WorkoutExercise we ON w.WorkoutID = we.WorkoutID
+JOIN Exercise e ON we.ExerciseID = e.ExerciseID
+ORDER BY w.WorkoutID;

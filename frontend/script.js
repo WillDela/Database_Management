@@ -106,6 +106,20 @@ async function loadViewSummary() {
     }
 }
 
+async function loadWorkoutExercises() {
+    setListLoading("workoutsList");
+    try {
+        const data = await fetchJson(`${API_BASE}/analytics/workout-exercises`);
+        renderList("workoutsList", data, (item) =>
+            `Workout ${item[0]} (${item[1] || "N/A"}) - ${item[2]}: ${item[3]} sets x ${item[4]} reps @ ${item[5]} lbs`
+        );
+    } catch (error) {
+        console.error("loadWorkoutExercises failed:", error);
+        renderList("workoutsList", [], (item) => item);
+        setMessage("Failed to load workout exercises.", true);
+    }
+}
+
 async function loadFilteredWorkouts() {
     setListLoading("workoutsList");
     try {
