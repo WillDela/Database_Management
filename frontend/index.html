@@ -166,6 +166,34 @@
         </div>
 
         <div class="card">
+            <h2>Add Workout</h2>
+            <p class="card-sub">Create a new workout record for a user</p>
+            <div class="form-grid">
+                <div class="field">
+                    <label for="workoutDate">Date</label>
+                    <input type="date" id="workoutDate">
+                </div>
+                <div class="field">
+                    <label for="workoutType">Workout Type</label>
+                    <input type="text" id="workoutType" placeholder="e.g. Strength">
+                </div>
+                <div class="field">
+                    <label for="workoutDuration">Duration (minutes)</label>
+                    <input type="number" id="workoutDuration" placeholder="e.g. 45" min="0">
+                </div>
+                <div class="field">
+                    <label for="workoutCalories">Calories Burned</label>
+                    <input type="number" id="workoutCalories" placeholder="e.g. 300" min="0">
+                </div>
+                <div class="field">
+                    <label for="workoutUserId">User ID</label>
+                    <input type="number" id="workoutUserId" placeholder="User ID" min="1">
+                </div>
+            </div>
+            <button class="primary" onclick="addWorkout()">Add Workout</button>
+        </div>
+
+        <div class="card">
             <h2>Add Food Log</h2>
             <p class="card-sub">Record a meal entry for a user</p>
             <div class="form-grid">

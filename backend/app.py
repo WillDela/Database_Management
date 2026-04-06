@@ -35,6 +35,55 @@ def parse_positive_int(value, field_name):
 
 # WORKOUT ROUTES
 
+# add a new workout
+@app.route("/workouts", methods=["POST"])
+def add_workout():
+    data = request.get_json()
+    if not data:
+        return jsonify({"message": "Request body is required."}), 400
+
+    workout_date = (data.get("workout_date") or "").strip()
+    workout_type = data.get("workout_type")
+    workout_type = workout_type.strip() if isinstance(workout_type, str) and workout_type.strip() else None
+    user_id = data.get("user_id")
+
+    duration, duration_error = parse_positive_int(data.get("duration"), "duration")
+    calories, calories_error = parse_positive_int(data.get("calories"), "calories")
+
+    if not workout_date:
+        return jsonify({"message": "workout_date is required."}), 400
+    if duration_error:
+        return jsonify({"message": duration_error}), 400
+    if calories_error:
+        return jsonify({"message": calories_error}), 400
+
+    try:
+        user_id = int(user_id)
+    except (TypeError, ValueError):
+        return jsonify({"message": "user_id must be an integer."}), 400
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            """
+            INSERT INTO Workout (WorkoutDate, DurationMinutes, WorkoutType, CaloriesBurned, UserID)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (workout_date, duration, workout_type, calories, user_id),
+        )
+        conn.commit()
+        return jsonify(
+            {"message": "Workout added successfully.", "workout_id": cursor.lastrowid}
+        ), 201
+    except sqlite3.IntegrityError as e:
+        return jsonify({"message": f"Database constraint error: {str(e)}"}), 409
+    except Exception as e:
+        return jsonify({"message": f"Server error: {str(e)}"}), 500
+    finally:
+        conn.close()
+
+
 # get all workouts with user names (JOIN query)
 @app.route("/workouts")
 def workouts():

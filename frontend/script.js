@@ -394,6 +394,47 @@ async function updateWorkout() {
     }
 }
 
+// Item 6: Add Workout
+async function addWorkout() {
+    const workoutDate    = document.getElementById('workoutDate').value.trim();
+    const workoutType    = document.getElementById('workoutType').value.trim();
+    const workoutDuration = document.getElementById('workoutDuration').value.trim();
+    const workoutCalories = document.getElementById('workoutCalories').value.trim();
+    const userId         = document.getElementById('workoutUserId').value.trim();
+
+    clearErrors('workoutDate', 'workoutDuration', 'workoutCalories', 'workoutUserId');
+
+    let hasError = false;
+    if (!workoutDate)     { markError('workoutDate');     hasError = true; }
+    if (!workoutDuration) { markError('workoutDuration'); hasError = true; }
+    if (!workoutCalories) { markError('workoutCalories'); hasError = true; }
+    if (!userId)          { markError('workoutUserId');   hasError = true; }
+    if (hasError) {
+        showToast('Date, duration, calories, and user ID are required.', true);
+        return;
+    }
+
+    try {
+        const data = await fetchJson(`${API_BASE}/workouts`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                workout_date: workoutDate,
+                workout_type: workoutType || null,
+                duration: Number(workoutDuration),
+                calories: Number(workoutCalories),
+                user_id: Number(userId)
+            })
+        });
+        showToast(data.message);
+        ['workoutDate', 'workoutType', 'workoutDuration', 'workoutCalories', 'workoutUserId'].forEach(id => {
+            document.getElementById(id).value = '';
+        });
+    } catch (error) {
+        showToast(error.message, true);
+    }
+}
+
 // Item 4: Add Food Log
 async function addFoodLog() {
     const foodName = document.getElementById('foodName').value.trim();
