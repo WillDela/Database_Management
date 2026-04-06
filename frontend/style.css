@@ -207,6 +207,36 @@ button.primary:hover:not(:disabled) {
     border-color: #111 !important;
 }
 
+/* FILTER ROW */
+.filter-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    padding: 16px;
+    background: #fafafa;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.filter-row .field {
+    min-width: 140px;
+}
+
+/* LINKS */
+.text-link {
+    color: #666;
+    font-size: 13px;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+}
+
+.text-link:hover {
+    color: #111;
+}
+
 /* FORMS */
 .form-grid {
     display: grid;

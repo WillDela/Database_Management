@@ -13,6 +13,11 @@ document.querySelectorAll('.tab').forEach(tab => {
     });
 });
 
+// SWITCH TO WORKOUTS TAB — used by the Manage tab reference link
+function switchToWorkouts() {
+    document.querySelector('[data-tab="workouts"]').click();
+}
+
 // TOAST
 let toastTimer = null;
 function showToast(text, isError = false) {
@@ -39,7 +44,7 @@ function setButtonLoading(btn, loading) {
 // ACTIVE QUERY BUTTON HIGHLIGHT
 function setActiveButton(btn) {
     if (!btn) return;
-    const group = btn.closest('.btn-group');
+    const group = btn.closest('.btn-group') || btn.closest('.filter-row');
     if (group) {
         group.querySelectorAll('button').forEach(b => b.classList.remove('btn-active'));
     }
@@ -48,7 +53,8 @@ function setActiveButton(btn) {
 
 // INPUT VALIDATION
 function markError(id) {
-    document.getElementById(id).classList.add('input-error');
+    const el = document.getElementById(id);
+    if (el) el.classList.add('input-error');
 }
 function clearErrors(...ids) {
     ids.forEach(id => {
@@ -143,7 +149,7 @@ async function fetchJson(url, options = {}) {
     return data;
 }
 
-// STATS STRIP — loads automatically when Analytics tab opens
+// STATS STRIP
 async function loadStats() {
     try {
         const [users, workouts, avgData] = await Promise.all([
@@ -174,11 +180,22 @@ async function loadWorkouts(btn) {
     }
 }
 
+// Item 5: reads live input values instead of hardcoded numbers
 async function loadFilteredWorkouts(btn) {
+    const minCalories = document.getElementById('filterCalories').value || 0;
+    const minDuration = document.getElementById('filterDuration').value || 0;
+
+    clearErrors('filterCalories', 'filterDuration');
+
+    if (minCalories < 0) { markError('filterCalories'); showToast('Min calories cannot be negative.', true); return; }
+    if (minDuration < 0) { markError('filterDuration'); showToast('Min duration cannot be negative.', true); return; }
+
     setButtonLoading(btn, true);
     setActiveButton(btn);
     try {
-        const data = await fetchJson(`${API_BASE}/workouts/filter?minCalories=200&minDuration=30`);
+        const data = await fetchJson(
+            `${API_BASE}/workouts/filter?minCalories=${minCalories}&minDuration=${minDuration}`
+        );
         renderTable('workoutsTable', ['ID', 'Date', 'Duration (min)', 'Type', 'Calories', 'User ID'], data);
     } catch (error) {
         showToast('Failed to load filtered workouts.', true);
@@ -241,14 +258,18 @@ async function addUser() {
     }
 }
 
+// Item 2: confirmation before destructive delete
 async function deleteUser() {
     const userId = document.getElementById('deleteUserId').value.trim();
     clearErrors('deleteUserId');
+
     if (!userId) {
         markError('deleteUserId');
         showToast('Provide a user ID to delete.', true);
         return;
     }
+
+    if (!confirm(`Delete user ${userId}? This cannot be undone.`)) return;
 
     try {
         const data = await fetchJson(`${API_BASE}/users/${userId}`, { method: 'DELETE' });
@@ -341,7 +362,7 @@ async function loadAvgCalories(btn) {
     }
 }
 
-// MANAGE
+// MANAGE — Update Workout
 async function updateWorkout() {
     const workoutId = document.getElementById('updateWorkoutId').value.trim();
     const duration  = document.getElementById('updateDuration').value.trim();
@@ -373,5 +394,79 @@ async function updateWorkout() {
     }
 }
 
-// INIT — auto-load workouts on page open
-loadWorkouts();
+// Item 4: Add Food Log
+async function addFoodLog() {
+    const foodName = document.getElementById('foodName').value.trim();
+    const calories = document.getElementById('foodCalories').value.trim();
+    const mealType = document.getElementById('mealType').value.trim();
+    const logDate  = document.getElementById('logDate').value.trim();
+    const userId   = document.getElementById('foodUserId').value.trim();
+
+    clearErrors('foodName', 'foodCalories', 'logDate', 'foodUserId');
+
+    let hasError = false;
+    if (!foodName) { markError('foodName');    hasError = true; }
+    if (!calories) { markError('foodCalories'); hasError = true; }
+    if (!logDate)  { markError('logDate');      hasError = true; }
+    if (!userId)   { markError('foodUserId');   hasError = true; }
+    if (hasError) {
+        showToast('Please fill in the required fields.', true);
+        return;
+    }
+
+    try {
+        const data = await fetchJson(`${API_BASE}/foodlog`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                food_name: foodName,
+                calories: Number(calories),
+                meal_type: mealType || null,
+                log_date: logDate,
+                user_id: Number(userId)
+            })
+        });
+        showToast(data.message);
+        ['foodName', 'foodCalories', 'mealType', 'logDate', 'foodUserId'].forEach(id => {
+            document.getElementById(id).value = '';
+        });
+    } catch (error) {
+        showToast(error.message, true);
+    }
+}
+
+// Item 4: Delete Food Log
+async function deleteFoodLog() {
+    const foodName = document.getElementById('deleteFoodName').value.trim();
+    const userId   = document.getElementById('deleteFoodUserId').value.trim();
+
+    clearErrors('deleteFoodName', 'deleteFoodUserId');
+
+    let hasError = false;
+    if (!foodName) { markError('deleteFoodName');   hasError = true; }
+    if (!userId)   { markError('deleteFoodUserId'); hasError = true; }
+    if (hasError) {
+        showToast('Food name and user ID are required.', true);
+        return;
+    }
+
+    if (!confirm(`Delete "${foodName}" from user ${userId}'s food log?`)) return;
+
+    try {
+        const data = await fetchJson(`${API_BASE}/foodlog`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ food_name: foodName, user_id: Number(userId) })
+        });
+        showToast(data.message);
+        ['deleteFoodName', 'deleteFoodUserId'].forEach(id => {
+            document.getElementById(id).value = '';
+        });
+    } catch (error) {
+        showToast(error.message, true);
+    }
+}
+
+// INIT — auto-load workouts on page open with active button highlighted
+const allWorkoutsBtn = document.getElementById('btn-all-workouts');
+loadWorkouts(allWorkoutsBtn);
