@@ -243,6 +243,7 @@ def delete_foodlog():
 # UPDATE ROUTES
 
 # update workout info
+# ADVANCED FEATURE: explicit transaction with rollback on failure
 @app.route("/workouts/<int:workout_id>", methods=["PUT"])
 def update_workout(workout_id):
     data = request.get_json()
@@ -259,22 +260,26 @@ def update_workout(workout_id):
 
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute(
-        """
-        UPDATE Workout
-        SET DurationMinutes = ?, CaloriesBurned = ?
-        WHERE WorkoutID = ?
-        """,
-        (duration_value, calories_value, workout_id),
-    )
-
-    if cursor.rowcount == 0:
+    try:
+        cursor.execute("BEGIN")
+        cursor.execute(
+            """
+            UPDATE Workout
+            SET DurationMinutes = ?, CaloriesBurned = ?
+            WHERE WorkoutID = ?
+            """,
+            (duration_value, calories_value, workout_id),
+        )
+        if cursor.rowcount == 0:
+            cursor.execute("ROLLBACK")
+            return jsonify({"message": "Workout not found."}), 404
+        cursor.execute("COMMIT")
+        return jsonify({"message": "Workout updated successfully."}), 200
+    except Exception as e:
+        cursor.execute("ROLLBACK")
+        return jsonify({"message": f"Transaction failed: {str(e)}"}), 500
+    finally:
         conn.close()
-        return jsonify({"message": "Workout not found."}), 404
-
-    conn.commit()
-    conn.close()
-    return jsonify({"message": "Workout updated successfully."}), 200
 
 
 # ANALYTICS ROUTES

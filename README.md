@@ -13,9 +13,9 @@ This project is a simple fitness tracking system built using SQLite, Flask, and 
 
 The app allows you to:
 - View users and workouts
-- Run different queries (summary, filters, analytics)
+- Run 12 different queries (summary, filters, analytics, joins)
 - Add users
-- Update workouts
+- Update workouts (with explicit transaction)
 - Delete users (with constraint checks)
 
 
@@ -40,6 +40,7 @@ Includes:
 - Constraints (NOT NULL, UNIQUE, CHECK)  
 - View: `UserWorkoutSummary`  
 - Trigger: prevents negative calories  
+- Transaction: explicit BEGIN/COMMIT/ROLLBACK on workout updates  
 
 
 ## How to Run the Project

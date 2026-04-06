@@ -1,7 +1,8 @@
 INSERT INTO Users (Name, Email, Age, FitnessGoal) VALUES
 ('Alejandro Perez', 'alex@email.com', 22, 'Build Muscle'),
 ('Miguel Bayon', 'miguel@email.com', 30, 'Lose Weight'),
-('William Delaosa', 'william@email.com', 1, NULL);
+('William Delaosa', 'william@email.com', 1, NULL),
+('Isaiah Fuller', 'isaiah@email.com', 21, 'Improve Endurance');
 
 INSERT INTO Workout (WorkoutDate, DurationMinutes, WorkoutType, CaloriesBurned, UserID) VALUES
 ('2026-03-01', 60, 'Strength', 400, 1),

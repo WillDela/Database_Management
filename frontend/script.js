@@ -106,6 +106,30 @@ async function loadViewSummary() {
     }
 }
 
+async function loadMaxCalories() {
+    setListLoading("workoutsList");
+    try {
+        const data = await fetchJson(`${API_BASE}/analytics/max-calories`);
+        renderList("workoutsList", data, (item) => `User ${item[0]} max calories: ${item[1]}`);
+    } catch (error) {
+        console.error("loadMaxCalories failed:", error);
+        renderList("workoutsList", [], (item) => item);
+        setMessage("Failed to load max calories.", true);
+    }
+}
+
+async function loadAvgCalories() {
+    setListLoading("workoutsList");
+    try {
+        const data = await fetchJson(`${API_BASE}/avg-calories`);
+        renderList("workoutsList", data, (item) => `Average calories burned: ${item[0].toFixed(2)}`);
+    } catch (error) {
+        console.error("loadAvgCalories failed:", error);
+        renderList("workoutsList", [], (item) => item);
+        setMessage("Failed to load average calories.", true);
+    }
+}
+
 async function loadWorkoutExercises() {
     setListLoading("workoutsList");
     try {
