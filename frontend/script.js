@@ -287,7 +287,7 @@ async function loadSummary(btn) {
     setActiveButton(btn);
     try {
         const data = await fetchJson(`${API_BASE}/summary`);
-        renderTable('analyticsTable', ['User ID', 'Total Calories'], data);
+        renderTable('analyticsTable', ['Name', 'Total Calories'], data);
     } catch (error) {
         showToast('Failed to load calories summary.', true);
     } finally {
@@ -328,7 +328,7 @@ async function loadViewSummary(btn) {
     setActiveButton(btn);
     try {
         const data = await fetchJson(`${API_BASE}/analytics/view-summary`);
-        renderTable('analyticsTable', ['User ID', 'Total Workouts', 'Total Calories'], data);
+        renderTable('analyticsTable', ['Name', 'Total Workouts', 'Total Calories'], data);
     } catch (error) {
         showToast('Failed to load view summary.', true);
     } finally {
@@ -341,7 +341,7 @@ async function loadMaxCalories(btn) {
     setActiveButton(btn);
     try {
         const data = await fetchJson(`${API_BASE}/analytics/max-calories`);
-        renderTable('analyticsTable', ['User ID', 'Max Calories'], data);
+        renderTable('analyticsTable', ['Name', 'Max Calories'], data);
     } catch (error) {
         showToast('Failed to load max calories.', true);
     } finally {

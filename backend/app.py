@@ -334,26 +334,28 @@ def update_workout(workout_id):
 
 # ANALYTICS ROUTES
 
-# total calories per user (GROUP BY)
+# total calories per user (GROUP BY + JOIN)
 @app.route("/summary")
 def summary():
     rows = execute_select("""
-        SELECT UserID, SUM(CaloriesBurned) AS TotalCalories
-        FROM Workout
-        GROUP BY UserID
-        ORDER BY UserID;
+        SELECT u.Name, SUM(w.CaloriesBurned) AS TotalCalories
+        FROM Workout w
+        JOIN Users u ON w.UserID = u.UserID
+        GROUP BY w.UserID, u.Name
+        ORDER BY w.UserID;
     """)
     return jsonify(rows), 200
 
 
-# max calories per user
+# max calories per user (JOIN)
 @app.route("/analytics/max-calories")
 def max_calories():
     rows = execute_select("""
-        SELECT UserID, MAX(CaloriesBurned) AS MaxCalories
-        FROM Workout
-        GROUP BY UserID
-        ORDER BY UserID;
+        SELECT u.Name, MAX(w.CaloriesBurned) AS MaxCalories
+        FROM Workout w
+        JOIN Users u ON w.UserID = u.UserID
+        GROUP BY w.UserID, u.Name
+        ORDER BY w.UserID;
     """)
     return jsonify(rows), 200
 
@@ -402,13 +404,14 @@ def workout_intensity():
     return jsonify(rows), 200
 
 
-# query using view
+# query using view (JOIN to resolve user names)
 @app.route("/analytics/view-summary")
 def view_summary():
     rows = execute_select("""
-        SELECT *
-        FROM UserWorkoutSummary
-        ORDER BY UserID;
+        SELECT u.Name, uws.TotalWorkouts, uws.TotalCalories
+        FROM UserWorkoutSummary uws
+        JOIN Users u ON uws.UserID = u.UserID
+        ORDER BY uws.UserID;
     """)
     return jsonify(rows), 200
 
