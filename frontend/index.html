@@ -13,6 +13,7 @@
 <header>
     <div class="header-inner">
         <span class="logo">Fitness Tracker</span>
+        <div class="header-divider"></div>
         <nav class="tabs">
             <button class="tab active" data-tab="workouts">Workouts</button>
             <button class="tab" data-tab="users">Users</button>
@@ -40,6 +41,8 @@
                 <button onclick="loadExercises(this)">All Exercises</button>
             </div>
 
+            <hr class="card-divider">
+
             <div class="filter-row">
                 <div class="field">
                     <label for="filterCalories">Min Calories</label>
@@ -52,7 +55,7 @@
                 <button id="btn-filter" onclick="loadFilteredWorkouts(this)">Apply Filter</button>
             </div>
 
-            <div id="workoutsTable"><p class="empty">Select a query above to load data.</p></div>
+            <div id="workoutsTable"><p class="empty">Loading...</p></div>
         </div>
     </section>
 
@@ -92,7 +95,7 @@
             <button class="primary" onclick="addUser()">Add User</button>
         </div>
 
-        <div class="card">
+        <div class="card danger-card">
             <h2>Delete User</h2>
             <p class="card-sub">Deletion will fail if the user has related records</p>
             <div class="form-row">
@@ -284,7 +287,7 @@
             <button class="primary" onclick="addFoodLog()">Add Food Log</button>
         </div>
 
-        <div class="card">
+        <div class="card danger-card">
             <h2>Delete Food Log</h2>
             <p class="card-sub">Remove a food entry by name and user</p>
             <div class="form-row">
