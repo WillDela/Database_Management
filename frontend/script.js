@@ -7,6 +7,9 @@ document.querySelectorAll('.tab').forEach(tab => {
         document.querySelectorAll('.tab-content').forEach(s => s.classList.remove('active'));
         tab.classList.add('active');
         document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
+
+        if (tab.dataset.tab === 'users') loadUsers();
+        if (tab.dataset.tab === 'analytics') loadStats();
     });
 });
 
@@ -20,15 +23,57 @@ function showToast(text, isError = false) {
     toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// FORMAT CELL — rounds floats, replaces null
+// BUTTON LOADING STATE
+function setButtonLoading(btn, loading) {
+    if (!btn) return;
+    if (loading) {
+        btn.dataset.originalText = btn.textContent;
+        btn.textContent = 'Loading...';
+        btn.disabled = true;
+    } else {
+        btn.textContent = btn.dataset.originalText || btn.textContent;
+        btn.disabled = false;
+    }
+}
+
+// ACTIVE QUERY BUTTON HIGHLIGHT
+function setActiveButton(btn) {
+    if (!btn) return;
+    const group = btn.closest('.btn-group');
+    if (group) {
+        group.querySelectorAll('button').forEach(b => b.classList.remove('btn-active'));
+    }
+    btn.classList.add('btn-active');
+}
+
+// INPUT VALIDATION
+function markError(id) {
+    document.getElementById(id).classList.add('input-error');
+}
+function clearErrors(...ids) {
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('input-error');
+    });
+}
+
+// FORMAT CELL
 function formatCell(value) {
     if (value === null || value === undefined) return 'N/A';
     if (typeof value === 'number' && !Number.isInteger(value)) return value.toFixed(2);
     return value;
 }
 
-// RENDER TABLE
-function renderTable(containerId, headers, rows) {
+// INTENSITY BADGE
+function intensityBadge(level) {
+    const badge = document.createElement('span');
+    badge.textContent = level || 'N/A';
+    badge.className = `badge badge-${(level || '').toLowerCase()}`;
+    return badge;
+}
+
+// RENDER TABLE — optional formatters: { colIndex: (value) => string | HTMLElement }
+function renderTable(containerId, headers, rows, formatters = {}) {
     const container = document.getElementById(containerId);
 
     if (!rows || rows.length === 0) {
@@ -55,9 +100,18 @@ function renderTable(containerId, headers, rows) {
     rows.forEach(row => {
         const tr = document.createElement('tr');
         const cells = Array.isArray(row) ? row : [row];
-        cells.forEach(cell => {
+        cells.forEach((cell, i) => {
             const td = document.createElement('td');
-            td.textContent = formatCell(cell);
+            if (formatters[i]) {
+                const result = formatters[i](cell);
+                if (result instanceof HTMLElement) {
+                    td.appendChild(result);
+                } else {
+                    td.textContent = result;
+                }
+            } else {
+                td.textContent = formatCell(cell);
+            }
             tr.appendChild(td);
         });
         tbody.appendChild(tr);
@@ -89,31 +143,60 @@ async function fetchJson(url, options = {}) {
     return data;
 }
 
+// STATS STRIP — loads automatically when Analytics tab opens
+async function loadStats() {
+    try {
+        const [users, workouts, avgData] = await Promise.all([
+            fetchJson(`${API_BASE}/users`),
+            fetchJson(`${API_BASE}/workouts`),
+            fetchJson(`${API_BASE}/avg-calories`)
+        ]);
+        document.getElementById('stat-users').textContent = users.length;
+        document.getElementById('stat-workouts').textContent = workouts.length;
+        const avg = avgData[0]?.[0];
+        document.getElementById('stat-avg-cal').textContent = avg != null ? Number(avg).toFixed(1) : 'N/A';
+    } catch (_) {
+        // stats are non-critical, fail silently
+    }
+}
+
 // WORKOUTS
-async function loadWorkouts() {
+async function loadWorkouts(btn) {
+    setButtonLoading(btn, true);
+    setActiveButton(btn);
     try {
         const data = await fetchJson(`${API_BASE}/workouts`);
         renderTable('workoutsTable', ['Name', 'Date', 'Type'], data);
     } catch (error) {
         showToast('Failed to load workouts.', true);
+    } finally {
+        setButtonLoading(btn, false);
     }
 }
 
-async function loadFilteredWorkouts() {
+async function loadFilteredWorkouts(btn) {
+    setButtonLoading(btn, true);
+    setActiveButton(btn);
     try {
         const data = await fetchJson(`${API_BASE}/workouts/filter?minCalories=200&minDuration=30`);
         renderTable('workoutsTable', ['ID', 'Date', 'Duration (min)', 'Type', 'Calories', 'User ID'], data);
     } catch (error) {
         showToast('Failed to load filtered workouts.', true);
+    } finally {
+        setButtonLoading(btn, false);
     }
 }
 
-async function loadWorkoutExercises() {
+async function loadWorkoutExercises(btn) {
+    setButtonLoading(btn, true);
+    setActiveButton(btn);
     try {
         const data = await fetchJson(`${API_BASE}/analytics/workout-exercises`);
         renderTable('workoutsTable', ['Workout ID', 'Type', 'Exercise', 'Sets', 'Reps', 'Weight (lbs)'], data);
     } catch (error) {
         showToast('Failed to load workout exercises.', true);
+    } finally {
+        setButtonLoading(btn, false);
     }
 }
 
@@ -133,8 +216,14 @@ async function addUser() {
     const age   = document.getElementById('age').value.trim();
     const goal  = document.getElementById('goal').value.trim();
 
-    if (!name || !email || !age) {
-        showToast('Name, email, and age are required.', true);
+    clearErrors('name', 'email', 'age');
+
+    let hasError = false;
+    if (!name)  { markError('name');  hasError = true; }
+    if (!email) { markError('email'); hasError = true; }
+    if (!age)   { markError('age');   hasError = true; }
+    if (hasError) {
+        showToast('Please fill in the required fields.', true);
         return;
     }
 
@@ -154,7 +243,9 @@ async function addUser() {
 
 async function deleteUser() {
     const userId = document.getElementById('deleteUserId').value.trim();
+    clearErrors('deleteUserId');
     if (!userId) {
+        markError('deleteUserId');
         showToast('Provide a user ID to delete.', true);
         return;
     }
@@ -170,57 +261,83 @@ async function deleteUser() {
 }
 
 // ANALYTICS
-async function loadSummary() {
+async function loadSummary(btn) {
+    setButtonLoading(btn, true);
+    setActiveButton(btn);
     try {
         const data = await fetchJson(`${API_BASE}/summary`);
         renderTable('analyticsTable', ['User ID', 'Total Calories'], data);
     } catch (error) {
         showToast('Failed to load calories summary.', true);
+    } finally {
+        setButtonLoading(btn, false);
     }
 }
 
-async function loadAboveAverage() {
+async function loadAboveAverage(btn) {
+    setButtonLoading(btn, true);
+    setActiveButton(btn);
     try {
         const data = await fetchJson(`${API_BASE}/analytics/above-average`);
         renderTable('analyticsTable', ['Name'], data);
     } catch (error) {
         showToast('Failed to load above-average users.', true);
+    } finally {
+        setButtonLoading(btn, false);
     }
 }
 
-async function loadIntensity() {
+async function loadIntensity(btn) {
+    setButtonLoading(btn, true);
+    setActiveButton(btn);
     try {
         const data = await fetchJson(`${API_BASE}/analytics/intensity`);
-        renderTable('analyticsTable', ['Workout ID', 'Intensity'], data);
+        renderTable('analyticsTable', ['Workout ID', 'Intensity'], data, {
+            1: (val) => intensityBadge(val)
+        });
     } catch (error) {
         showToast('Failed to load intensity data.', true);
+    } finally {
+        setButtonLoading(btn, false);
     }
 }
 
-async function loadViewSummary() {
+async function loadViewSummary(btn) {
+    setButtonLoading(btn, true);
+    setActiveButton(btn);
     try {
         const data = await fetchJson(`${API_BASE}/analytics/view-summary`);
         renderTable('analyticsTable', ['User ID', 'Total Workouts', 'Total Calories'], data);
     } catch (error) {
         showToast('Failed to load view summary.', true);
+    } finally {
+        setButtonLoading(btn, false);
     }
 }
 
-async function loadMaxCalories() {
+async function loadMaxCalories(btn) {
+    setButtonLoading(btn, true);
+    setActiveButton(btn);
     try {
         const data = await fetchJson(`${API_BASE}/analytics/max-calories`);
         renderTable('analyticsTable', ['User ID', 'Max Calories'], data);
     } catch (error) {
         showToast('Failed to load max calories.', true);
+    } finally {
+        setButtonLoading(btn, false);
     }
 }
 
-async function loadAvgCalories() {
+async function loadAvgCalories(btn) {
+    setButtonLoading(btn, true);
+    setActiveButton(btn);
     try {
         const data = await fetchJson(`${API_BASE}/avg-calories`);
         renderTable('analyticsTable', ['Average Calories Burned'], data);
     } catch (error) {
         showToast('Failed to load average calories.', true);
+    } finally {
+        setButtonLoading(btn, false);
     }
 }
 
@@ -230,7 +347,13 @@ async function updateWorkout() {
     const duration  = document.getElementById('updateDuration').value.trim();
     const calories  = document.getElementById('updateCalories').value.trim();
 
-    if (!workoutId || !duration || !calories) {
+    clearErrors('updateWorkoutId', 'updateDuration', 'updateCalories');
+
+    let hasError = false;
+    if (!workoutId) { markError('updateWorkoutId'); hasError = true; }
+    if (!duration)  { markError('updateDuration');  hasError = true; }
+    if (!calories)  { markError('updateCalories');  hasError = true; }
+    if (hasError) {
         showToast('All three fields are required.', true);
         return;
     }
@@ -249,3 +372,6 @@ async function updateWorkout() {
         showToast(error.message, true);
     }
 }
+
+// INIT — auto-load workouts on page open
+loadWorkouts();

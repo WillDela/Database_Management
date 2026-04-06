@@ -32,11 +32,11 @@
                     <h2>Workouts</h2>
                     <p class="card-sub">View and filter workout records</p>
                 </div>
-                <div class="btn-group">
-                    <button onclick="loadWorkouts()">All Workouts</button>
-                    <button onclick="loadFilteredWorkouts()">Filtered (&gt;200 cal, &gt;30 min)</button>
-                    <button onclick="loadWorkoutExercises()">Exercises per Workout</button>
-                </div>
+            </div>
+            <div class="btn-group">
+                <button onclick="loadWorkouts(this)">All Workouts</button>
+                <button onclick="loadFilteredWorkouts(this)">Filtered (&gt;200 cal, &gt;30 min)</button>
+                <button onclick="loadWorkoutExercises(this)">Exercises per Workout</button>
             </div>
             <div id="workoutsTable"><p class="empty">Select a query above to load data.</p></div>
         </div>
@@ -50,9 +50,8 @@
                     <h2>All Users</h2>
                     <p class="card-sub">Registered users in the system</p>
                 </div>
-                <button onclick="loadUsers()">Load Users</button>
             </div>
-            <div id="usersTable"><p class="empty">Click Load Users to view records.</p></div>
+            <div id="usersTable"><p class="empty">Loading users...</p></div>
         </div>
 
         <div class="card">
@@ -94,6 +93,21 @@
 
     <!-- ANALYTICS -->
     <section id="tab-analytics" class="tab-content">
+        <div class="stats-strip">
+            <div class="stat-card">
+                <span class="stat-value" id="stat-users">—</span>
+                <span class="stat-label">Total Users</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="stat-workouts">—</span>
+                <span class="stat-label">Total Workouts</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="stat-avg-cal">—</span>
+                <span class="stat-label">Avg Calories Burned</span>
+            </div>
+        </div>
+
         <div class="card">
             <div class="card-header">
                 <div>
@@ -102,12 +116,12 @@
                 </div>
             </div>
             <div class="btn-group">
-                <button onclick="loadSummary()">Calories Summary</button>
-                <button onclick="loadAboveAverage()">Above Average Users</button>
-                <button onclick="loadIntensity()">Workout Intensity</button>
-                <button onclick="loadViewSummary()">View Summary</button>
-                <button onclick="loadMaxCalories()">Max Calories</button>
-                <button onclick="loadAvgCalories()">Average Calories</button>
+                <button onclick="loadSummary(this)">Calories Summary</button>
+                <button onclick="loadAboveAverage(this)">Above Average Users</button>
+                <button onclick="loadIntensity(this)">Workout Intensity</button>
+                <button onclick="loadViewSummary(this)">View Summary</button>
+                <button onclick="loadMaxCalories(this)">Max Calories</button>
+                <button onclick="loadAvgCalories(this)">Average Calories</button>
             </div>
             <div id="analyticsTable"><p class="empty">Select a query above to load data.</p></div>
         </div>
