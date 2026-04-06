@@ -204,6 +204,19 @@ async function loadFilteredWorkouts(btn) {
     }
 }
 
+async function loadExercises(btn) {
+    setButtonLoading(btn, true);
+    setActiveButton(btn);
+    try {
+        const data = await fetchJson(`${API_BASE}/exercises`);
+        renderTable('workoutsTable', ['ID', 'Exercise', 'Muscle Group', 'Equipment', 'Difficulty'], data);
+    } catch (error) {
+        showToast('Failed to load exercises.', true);
+    } finally {
+        setButtonLoading(btn, false);
+    }
+}
+
 async function loadWorkoutExercises(btn) {
     setButtonLoading(btn, true);
     setActiveButton(btn);
@@ -387,6 +400,82 @@ async function updateWorkout() {
         });
         showToast(data.message);
         ['updateWorkoutId', 'updateDuration', 'updateCalories'].forEach(id => {
+            document.getElementById(id).value = '';
+        });
+    } catch (error) {
+        showToast(error.message, true);
+    }
+}
+
+// Add Exercise
+async function addExercise() {
+    const exerciseName = document.getElementById('exerciseName').value.trim();
+    const muscleGroup  = document.getElementById('muscleGroup').value.trim();
+    const equipment    = document.getElementById('equipment').value.trim();
+    const difficulty   = document.getElementById('difficulty').value.trim();
+
+    clearErrors('exerciseName');
+    if (!exerciseName) {
+        markError('exerciseName');
+        showToast('Exercise name is required.', true);
+        return;
+    }
+
+    try {
+        const data = await fetchJson(`${API_BASE}/exercises`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                exercise_name: exerciseName,
+                muscle_group: muscleGroup || null,
+                equipment: equipment || null,
+                difficulty: difficulty || null
+            })
+        });
+        showToast(`${data.message} (ID: ${data.exercise_id})`);
+        ['exerciseName', 'muscleGroup', 'equipment', 'difficulty'].forEach(id => {
+            document.getElementById(id).value = '';
+        });
+    } catch (error) {
+        showToast(error.message, true);
+    }
+}
+
+// Link Exercise to Workout
+async function addWorkoutExercise() {
+    const workoutId  = document.getElementById('linkWorkoutId').value.trim();
+    const exerciseId = document.getElementById('linkExerciseId').value.trim();
+    const sets       = document.getElementById('linkSets').value.trim();
+    const reps       = document.getElementById('linkReps').value.trim();
+    const weight     = document.getElementById('linkWeight').value.trim();
+
+    clearErrors('linkWorkoutId', 'linkExerciseId', 'linkSets', 'linkReps', 'linkWeight');
+
+    let hasError = false;
+    if (!workoutId)  { markError('linkWorkoutId');  hasError = true; }
+    if (!exerciseId) { markError('linkExerciseId'); hasError = true; }
+    if (!sets)       { markError('linkSets');       hasError = true; }
+    if (!reps)       { markError('linkReps');       hasError = true; }
+    if (!weight)     { markError('linkWeight');     hasError = true; }
+    if (hasError) {
+        showToast('All fields are required.', true);
+        return;
+    }
+
+    try {
+        const data = await fetchJson(`${API_BASE}/workout-exercises`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                workout_id: Number(workoutId),
+                exercise_id: Number(exerciseId),
+                sets: Number(sets),
+                reps: Number(reps),
+                weight: Number(weight)
+            })
+        });
+        showToast(data.message);
+        ['linkWorkoutId', 'linkExerciseId', 'linkSets', 'linkReps', 'linkWeight'].forEach(id => {
             document.getElementById(id).value = '';
         });
     } catch (error) {

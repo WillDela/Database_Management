@@ -37,6 +37,7 @@
             <div class="btn-group">
                 <button id="btn-all-workouts" onclick="loadWorkouts(this)">All Workouts</button>
                 <button onclick="loadWorkoutExercises(this)">Exercises per Workout</button>
+                <button onclick="loadExercises(this)">All Exercises</button>
             </div>
 
             <div class="filter-row">
@@ -191,6 +192,61 @@
                 </div>
             </div>
             <button class="primary" onclick="addWorkout()">Add Workout</button>
+        </div>
+
+        <div class="card">
+            <h2>Add Exercise</h2>
+            <p class="card-sub">Create a new exercise in the library</p>
+            <div class="form-grid">
+                <div class="field">
+                    <label for="exerciseName">Exercise Name</label>
+                    <input type="text" id="exerciseName" placeholder="e.g. Bench Press">
+                </div>
+                <div class="field">
+                    <label for="muscleGroup">Muscle Group</label>
+                    <input type="text" id="muscleGroup" placeholder="e.g. Chest">
+                </div>
+                <div class="field">
+                    <label for="equipment">Equipment</label>
+                    <input type="text" id="equipment" placeholder="e.g. Barbell">
+                </div>
+                <div class="field">
+                    <label for="difficulty">Difficulty</label>
+                    <input type="text" id="difficulty" placeholder="e.g. Medium">
+                </div>
+            </div>
+            <button class="primary" onclick="addExercise()">Add Exercise</button>
+        </div>
+
+        <div class="card">
+            <h2>Link Exercise to Workout</h2>
+            <p class="card-sub">
+                Attach an exercise to an existing workout &middot;
+                <a href="#" class="text-link" onclick="switchToWorkouts(); return false;">View workouts &amp; exercises for IDs</a>
+            </p>
+            <div class="form-grid">
+                <div class="field">
+                    <label for="linkWorkoutId">Workout ID</label>
+                    <input type="number" id="linkWorkoutId" placeholder="Workout ID" min="1">
+                </div>
+                <div class="field">
+                    <label for="linkExerciseId">Exercise ID</label>
+                    <input type="number" id="linkExerciseId" placeholder="Exercise ID" min="1">
+                </div>
+                <div class="field">
+                    <label for="linkSets">Sets</label>
+                    <input type="number" id="linkSets" placeholder="e.g. 3" min="0">
+                </div>
+                <div class="field">
+                    <label for="linkReps">Reps</label>
+                    <input type="number" id="linkReps" placeholder="e.g. 10" min="0">
+                </div>
+                <div class="field">
+                    <label for="linkWeight">Weight (lbs)</label>
+                    <input type="number" id="linkWeight" placeholder="e.g. 135" min="0">
+                </div>
+            </div>
+            <button class="primary" onclick="addWorkoutExercise()">Link Exercise</button>
         </div>
 
         <div class="card">

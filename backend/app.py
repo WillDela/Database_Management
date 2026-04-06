@@ -416,6 +416,93 @@ def view_summary():
     return jsonify(rows), 200
 
 
+# EXERCISE ROUTES
+
+# get all exercises
+@app.route("/exercises", methods=["GET"])
+def get_exercises():
+    rows = execute_select("""
+        SELECT ExerciseID, ExerciseName, MuscleGroup, Equipment, DifficultyLevel
+        FROM Exercise
+        ORDER BY ExerciseID;
+    """)
+    return jsonify(rows), 200
+
+
+# add a new exercise
+@app.route("/exercises", methods=["POST"])
+def add_exercise():
+    data = request.get_json()
+    if not data:
+        return jsonify({"message": "Request body is required."}), 400
+
+    exercise_name = (data.get("exercise_name") or "").strip()
+    muscle_group  = (data.get("muscle_group") or "").strip() or None
+    equipment     = (data.get("equipment") or "").strip() or None
+    difficulty    = (data.get("difficulty") or "").strip() or None
+
+    if not exercise_name:
+        return jsonify({"message": "exercise_name is required."}), 400
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            """
+            INSERT INTO Exercise (ExerciseName, MuscleGroup, Equipment, DifficultyLevel)
+            VALUES (?, ?, ?, ?)
+            """,
+            (exercise_name, muscle_group, equipment, difficulty),
+        )
+        conn.commit()
+        return jsonify(
+            {"message": "Exercise added successfully.", "exercise_id": cursor.lastrowid}
+        ), 201
+    except sqlite3.IntegrityError as e:
+        return jsonify({"message": f"Database constraint error: {str(e)}"}), 409
+    except Exception as e:
+        return jsonify({"message": f"Server error: {str(e)}"}), 500
+    finally:
+        conn.close()
+
+
+# link an exercise to a workout
+@app.route("/workout-exercises", methods=["POST"])
+def add_workout_exercise():
+    data = request.get_json()
+    if not data:
+        return jsonify({"message": "Request body is required."}), 400
+
+    workout_id,  workout_error  = parse_positive_int(data.get("workout_id"),  "workout_id")
+    exercise_id, exercise_error = parse_positive_int(data.get("exercise_id"), "exercise_id")
+    sets,        sets_error     = parse_positive_int(data.get("sets"),        "sets")
+    reps,        reps_error     = parse_positive_int(data.get("reps"),        "reps")
+    weight,      weight_error   = parse_positive_int(data.get("weight"),      "weight")
+
+    for err in [workout_error, exercise_error, sets_error, reps_error, weight_error]:
+        if err:
+            return jsonify({"message": err}), 400
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            """
+            INSERT INTO WorkoutExercise (WorkoutID, ExerciseID, Sets, Reps, Weight)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (workout_id, exercise_id, sets, reps, weight),
+        )
+        conn.commit()
+        return jsonify({"message": "Exercise linked to workout successfully."}), 201
+    except sqlite3.IntegrityError as e:
+        return jsonify({"message": f"Database constraint error: {str(e)}"}), 409
+    except Exception as e:
+        return jsonify({"message": f"Server error: {str(e)}"}), 500
+    finally:
+        conn.close()
+
+
 # exercises performed per workout (joins Workout, WorkoutExercise, Exercise)
 @app.route("/analytics/workout-exercises")
 def workout_exercises():
