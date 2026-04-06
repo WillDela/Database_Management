@@ -143,28 +143,8 @@
 
     <!-- MANAGE -->
     <section id="tab-manage" class="tab-content">
-        <div class="card">
-            <h2>Update Workout</h2>
-            <p class="card-sub">
-                Updates are wrapped in an explicit database transaction &middot;
-                <a href="#" class="text-link" onclick="switchToWorkouts(); return false;">View workouts to find IDs</a>
-            </p>
-            <div class="form-grid">
-                <div class="field">
-                    <label for="updateWorkoutId">Workout ID</label>
-                    <input type="number" id="updateWorkoutId" placeholder="Workout ID" min="1">
-                </div>
-                <div class="field">
-                    <label for="updateDuration">Duration (minutes)</label>
-                    <input type="number" id="updateDuration" placeholder="e.g. 45" min="0">
-                </div>
-                <div class="field">
-                    <label for="updateCalories">Calories Burned</label>
-                    <input type="number" id="updateCalories" placeholder="e.g. 300" min="0">
-                </div>
-            </div>
-            <button class="primary" onclick="updateWorkout()">Update Workout</button>
-        </div>
+
+        <p class="section-label">Workouts</p>
 
         <div class="card">
             <h2>Add Workout</h2>
@@ -193,6 +173,31 @@
             </div>
             <button class="primary" onclick="addWorkout()">Add Workout</button>
         </div>
+
+        <div class="card">
+            <h2>Update Workout</h2>
+            <p class="card-sub">
+                Updates are wrapped in an explicit database transaction &middot;
+                <a href="#" class="text-link" onclick="switchToWorkouts(); return false;">View workouts to find IDs</a>
+            </p>
+            <div class="form-grid">
+                <div class="field">
+                    <label for="updateWorkoutId">Workout ID</label>
+                    <input type="number" id="updateWorkoutId" placeholder="Workout ID" min="1">
+                </div>
+                <div class="field">
+                    <label for="updateDuration">Duration (minutes)</label>
+                    <input type="number" id="updateDuration" placeholder="e.g. 45" min="0">
+                </div>
+                <div class="field">
+                    <label for="updateCalories">Calories Burned</label>
+                    <input type="number" id="updateCalories" placeholder="e.g. 300" min="0">
+                </div>
+            </div>
+            <button class="primary" onclick="updateWorkout()">Update Workout</button>
+        </div>
+
+        <p class="section-label">Exercises</p>
 
         <div class="card">
             <h2>Add Exercise</h2>
@@ -249,6 +254,8 @@
             <button class="primary" onclick="addWorkoutExercise()">Link Exercise</button>
         </div>
 
+        <p class="section-label">Food Log</p>
+
         <div class="card">
             <h2>Add Food Log</h2>
             <p class="card-sub">Record a meal entry for a user</p>
@@ -292,6 +299,7 @@
             </div>
             <button class="btn-danger" onclick="deleteFoodLog()">Delete Food Log</button>
         </div>
+
     </section>
 
 </main>
